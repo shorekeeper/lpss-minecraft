@@ -7,7 +7,7 @@ Site is a deferred rendering shader pack for Minecraft 1.7.10 on the Angelica en
 - Compatibility layer: Angelica 2.20+
 - Minimum OGL: 4.3
 
-![Asset](assets/3.png)
+![Asset](assets/3.jpg)
 
 
 ## System Architecture
@@ -46,8 +46,8 @@ A ray step between distances `t0` and `t1` defines a conical frustum of radius `
 Coverage = clamp(0.5 - 0.5 * (d / (k * t)), 0.0, 1.0)
 ```
 
-![Asset](assets/1.png)
-![Asset](assets/4.png)
+![Asset](assets/1.jpg)
+![Asset](assets/4.jpg)
 
 The lower envelope of interior and exterior corner gaps is evaluated per cell crossing. If the cone intersects an adjacent block corner, visibility decreases proportionally without producing stepped discretization artifacts.
 
@@ -146,4 +146,4 @@ Block attributes are decoded into surface parameters based on identity categorie
 - Tone mapping: Linear HDR values scale by exposure and compress via rational shoulder curve mapping before conversion to sRGB space.
 - Sensor simulation: Dynamic gradient noise introduces grain across dark areas, accompanied by mild chromatic balance shifts toward cold tints.
 
-![Asset](assets/2.png)
+![Asset](assets/2.jpg)
