@@ -129,13 +129,37 @@ void meshRectBuild(uint off, uint count) {
 }
 
 #else
-#include "/lib/mesh_geometry.glsl"
 
-// Share of the source disc the rectangle hides: the area of its
-// projection through the receiver, in the homogeneous source coordinates
-// of lib/mesh_geometry.glsl. The two triangles of a convex quad meet the
-// disc in disjoint regions, so their areas add. A product of strip
-// fractions in its place overestimates thin occluders by up to 4 / pi.
+// Fraction of a uniform disc on the positive side of a line.
+// Circular segment area uses a polynomial approximation.
+// Empty and full coverage use the exact disc support.
+float meshRectDiscFraction(float forward, float radius) {
+    if (forward >= radius) return 1.0;
+    if (forward <= -radius) return 0.0;
+
+    float x = abs(forward) / radius;
+    float tail = 1.0 - x;
+    float cap = tail * sqrt(tail) *
+        (0.5 + x * (0.113380228 +
+            x * (-0.016159456 + x * 0.002990106)));
+
+    return forward >= 0.0 ? 1.0 - cap : cap;
+}
+
+// Projective edge plane through the receiver.
+// Its intersection with the source plane is a straight line.
+float meshRectEdgeFraction(vec3 edgeNormal, vec3 rd, float k) {
+    float forward = dot(edgeNormal, rd);
+    vec3 lateral = edgeNormal - rd * forward;
+    return meshRectDiscFraction(forward, k * length(lateral));
+}
+
+// Opposite edge pairs form two projected strips on the source disc.
+// Their intersection and source-depth clipping use a separable estimate,
+// which overestimates a thin occluder through the disc centre by up to
+// 4 / pi; the exact area of the projected quad was measured to remove
+// that and to multiply the compile time of every program holding the
+// walk by thirty.
 float meshRectCoverage(
     uvec4 recordA, uint joinBits, vec3 base, vec3 rd, float k
 ) {
